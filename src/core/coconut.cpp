@@ -1,6 +1,7 @@
 #include "coconut.h"
 
 #include "../javahooks/impl/processbuilder.h"
+#include "../javahooks/impl/url.h"
 #include "../javahooks/impl/urlclassloader.h"
 
 Coconut &Coconut::instance() {
@@ -28,8 +29,15 @@ void Coconut::hook(JNIEnv *env) {
         "(Ljava/net/URLClassLoader;Ljava/net/URL;)Ldev/coconut/javahooks/HookStatus;",
         (void *) Hooks::urlClassLoaderHook
     );
+    hooks->register_hook_callback(
+        "dev/coconut/javahooks/impl/java/net/URLTransformer",
+        "nativeHook",
+        "(Ljava/net/URL;)Ldev/coconut/javahooks/HookStatus;",
+        (void *) Hooks::urlHook
+    );
     hooks->retransform("java/lang/ProcessBuilder");
     hooks->retransform("java/net/URLClassLoader");
+    hooks->retransform("java/net/URL");
 }
 
 void Coconut::init(jvmtiEnv *jvmti, JNIEnv *env) {

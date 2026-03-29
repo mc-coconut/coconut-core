@@ -16,6 +16,7 @@ add_library(core SHARED
         src/javahooks/javahooks.cpp
         src/javahooks/javahooks.h
         src/javahooks/impl/processbuilder.h
+        src/javahooks/impl/url.h
         src/javahooks/impl/urlclassloader.h
         wintoast/wintoastlib.cpp
         wintoast/wintoastlib.h
