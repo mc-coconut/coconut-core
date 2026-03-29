@@ -37,5 +37,4 @@ void Coconut::init(jvmtiEnv* jvmti, JNIEnv* env) {
     printf("[coconut] initialized java hooks\n");
 
     this->hook(env);
-
 }

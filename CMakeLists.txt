@@ -13,14 +13,16 @@ add_library(core SHARED
         main.cpp
         core/coconut.cpp
         core/coconut.h
-        core/checks/static/static_check.h
-        core/checks/static/impl/known/weedhack.h
         javahooks/javahooks.cpp
         javahooks/javahooks.h
         javahooks/impl/processbuilder.h
+        wintoast/wintoastlib.cpp
+        wintoast/wintoastlib.h
 )
 
-
+if(WIN32)
+    target_link_libraries(core PRIVATE windowsapp)
+endif()
 
 target_link_libraries(core PRIVATE
         ${JNI_LIBRARIES}

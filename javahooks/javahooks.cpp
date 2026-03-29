@@ -70,6 +70,8 @@ bool JavaHooks::retransform(const char *name) {
     return true;
 }
 
+thread_local bool inHook = false;
+
 void JNICALL JavaHooks::ClassFileLoadHook(
     jvmtiEnv* jvmti,
     JNIEnv* env,
@@ -86,30 +88,40 @@ void JNICALL JavaHooks::ClassFileLoadHook(
     if (name == nullptr)
         return;
 
+    if (inHook)
+        return;
+
+    inHook = true;
+
+    jmethodID processMethod = env->GetStaticMethodID(javaHook_class, "process", "(Ljava/lang/String;[B)[B");
+    if (processMethod == nullptr) {
+        printf("JavaHooks.process is null");
+        inHook = false;
+        return;
+    }
+
+    jbyteArray input = env->NewByteArray(class_data_len);
+    env->SetByteArrayRegion(input, 0, class_data_len, (jbyte*)class_data);
+    jstring str = env->NewStringUTF(name);
+
+    jbyteArray output = (jbyteArray) env->CallStaticObjectMethod(javaHook_class, processMethod, str, input);
+
     if (std::ranges::find(classes, name) != classes.end()) {
-        printf("[classfileloadhook] loaded %s\n", name);
-        jmethodID processMethod = env->GetStaticMethodID(javaHook_class, "process", "(Ljava/lang/String;[B)[B");
-        if (processMethod == nullptr) {
-            printf("JavaHooks.process is null");
+        printf("[javahooks] hooked %s\n", name);
+        if (output == nullptr) {
+            inHook = false;
             return;
         }
-
-        jbyteArray input = env->NewByteArray(class_data_len);
-        env->SetByteArrayRegion(input, 0, class_data_len, (jbyte*)class_data);
-        jstring str = env->NewStringUTF(name);
-
-        jbyteArray output = (jbyteArray) env->CallStaticObjectMethod(javaHook_class, processMethod, str, input);
-
-        if (output == nullptr)
-            return;
-
         jint length = env->GetArrayLength(output);
-        if (length == 0)
+        if (length == 0) {
+            inHook = false;
             return;
+        }
         *new_class_data_len = length;
         *new_class_data = (unsigned char*)env->GetByteArrayElements(output, 0);
+    } else {
 
     }
 
-
+    inHook = false;
 }

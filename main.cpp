@@ -1,6 +1,6 @@
+#include <iostream>
 #include <stdexcept>
 #include "core/coconut.h"
-
 
 std::string getBootstrapJarPath() {
     std::string path;
@@ -18,6 +18,7 @@ std::string getBootstrapJarPath() {
     return path;
 }
 
+
 void JNICALL onVMInit(jvmtiEnv* jvmti, JNIEnv* env, jthread thread) {
     Coconut::instance().init(jvmti, env);
 }
@@ -34,11 +35,30 @@ JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM* vm, char* options, void* reserved) {
         return JNI_ERR;
     }
 
-
     jvmtiEventCallbacks callbacks = {};
     callbacks.VMInit = &onVMInit;
     jvmti->SetEventCallbacks(&callbacks, sizeof(callbacks));
     jvmti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_INIT, nullptr);
     return JNI_OK;
+}
 
+extern "C" {
+
+    JNIEXPORT void JNICALL Java_dev_coconut_av_Coconut_terminate
+      (JNIEnv* env, jobject obj, jstring jdetectionType, jstring jcheck, jstring jmessage) {
+
+        const char* detectionType = env->GetStringUTFChars(jdetectionType, 0);
+        const char* check = env->GetStringUTFChars(jcheck, 0);
+        const char* message = env->GetStringUTFChars(jmessage, 0);
+
+        printf("Flagged %s [%s]: %s", check, detectionType, message);
+
+        env->ReleaseStringUTFChars(jdetectionType, detectionType);
+        env->ReleaseStringUTFChars(jcheck, check);
+        env->ReleaseStringUTFChars(jmessage, message);
+        // Terminate the JVM
+        std::exit(EXIT_FAILURE);
+
+
+    }
 }

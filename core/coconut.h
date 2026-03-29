@@ -13,7 +13,6 @@ public:
         return this->coconutClass;
     }
 
-
 private:
     Coconut();
     ~Coconut();
