@@ -4,10 +4,11 @@
 
 class Coconut {
 public:
-    static Coconut& instance();
+    static Coconut &instance();
 
-    void init(jvmtiEnv* jvmti, JNIEnv* env);
-    void hook(JNIEnv* env);
+    void init(jvmtiEnv *jvmti, JNIEnv *env);
+
+    void hook(JNIEnv *env);
 
     jclass getCoconutClass() {
         return this->coconutClass;
@@ -15,11 +16,13 @@ public:
 
 private:
     Coconut();
+
     ~Coconut();
+
     jclass coconutClass;
-    JavaHooks* hooks;
+    JavaHooks *hooks;
 
-    Coconut(const Coconut&) = delete;
-    Coconut& operator=(const Coconut&) = delete;
+    Coconut(const Coconut &) = delete;
 
+    Coconut &operator=(const Coconut &) = delete;
 };

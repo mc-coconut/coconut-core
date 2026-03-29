@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(core)
+project(src/core)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -10,12 +10,12 @@ include_directories(${JNI_INCLUDE_DIRS})
 
 # Build shared library
 add_library(core SHARED
-        main.cpp
-        core/coconut.cpp
-        core/coconut.h
-        javahooks/javahooks.cpp
-        javahooks/javahooks.h
-        javahooks/impl/processbuilder.h
+        src/main.cpp
+        src/core/coconut.cpp
+        src/core/coconut.h
+        src/javahooks/javahooks.cpp
+        src/javahooks/javahooks.h
+        src/javahooks/impl/processbuilder.h
         wintoast/wintoastlib.cpp
         wintoast/wintoastlib.h
 )

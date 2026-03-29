@@ -3,8 +3,7 @@
 std::vector<std::string> JavaHooks::classes;
 jclass JavaHooks::javaHook_class;
 
-bool JavaHooks::init(JNIEnv* env, jvmtiEnv* jvmti) {
-
+bool JavaHooks::init(JNIEnv *env, jvmtiEnv *jvmti) {
     this->env = env;
     this->jvmti = jvmti;
 
@@ -37,14 +36,13 @@ bool JavaHooks::init(JNIEnv* env, jvmtiEnv* jvmti) {
         return false;
 
     return true;
-
 }
 
-void JavaHooks::register_hook_callback(const char* clazz, const char* method, const char* sig, void* callback) {
+void JavaHooks::register_hook_callback(const char *clazz, const char *method, const char *sig, void *callback) {
     JNINativeMethod methods[] = {
         {
-            const_cast<char*>(method),
-            const_cast<char*>(sig),
+            const_cast<char *>(method),
+            const_cast<char *>(sig),
             callback
         }
     };
@@ -60,8 +58,6 @@ void JavaHooks::register_hook_callback(const char* clazz, const char* method, co
     }
 
     printf("[javahooks] registered native for %s\n", clazz);
-
-
 }
 
 bool JavaHooks::retransform(const char *name) {
@@ -73,18 +69,17 @@ bool JavaHooks::retransform(const char *name) {
 thread_local bool inHook = false;
 
 void JNICALL JavaHooks::ClassFileLoadHook(
-    jvmtiEnv* jvmti,
-    JNIEnv* env,
+    jvmtiEnv *jvmti,
+    JNIEnv *env,
     jclass class_being_redefined,
     jobject loader,
-    const char* name,
+    const char *name,
     jobject protection_domain,
     jint class_data_len,
-    const unsigned char* class_data,
-    jint* new_class_data_len,
-    unsigned char** new_class_data
+    const unsigned char *class_data,
+    jint *new_class_data_len,
+    unsigned char **new_class_data
 ) {
-
     if (name == nullptr)
         return;
 
@@ -101,7 +96,7 @@ void JNICALL JavaHooks::ClassFileLoadHook(
     }
 
     jbyteArray input = env->NewByteArray(class_data_len);
-    env->SetByteArrayRegion(input, 0, class_data_len, (jbyte*)class_data);
+    env->SetByteArrayRegion(input, 0, class_data_len, (jbyte *) class_data);
     jstring str = env->NewStringUTF(name);
 
     jbyteArray output = (jbyteArray) env->CallStaticObjectMethod(javaHook_class, processMethod, str, input);
@@ -118,9 +113,8 @@ void JNICALL JavaHooks::ClassFileLoadHook(
             return;
         }
         *new_class_data_len = length;
-        *new_class_data = (unsigned char*)env->GetByteArrayElements(output, 0);
+        *new_class_data = (unsigned char *) env->GetByteArrayElements(output, 0);
     } else {
-
     }
 
     inHook = false;
